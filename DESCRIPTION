@@ -1,0 +1,26 @@
+Package: FindReference
+Title: Find reference genes or miRNAs basing on microarray data.
+Version: 0.0.0.9000
+Authors@R: c(person("Ewa", "Marek", email = "ewa.marek.3.14@gmail.com", role = c("aut", "cre")), person("Roman", "Jaksik", email = NULL, role = c("aut")))
+Description: The package performs stability analysis of genes or miRNAs expression levels in experiments with treating factors. The analysis are based on microarray data, which could be automatically downloaded from ArrayExpress database using ArrayExpress experiment identifiers or be provided by user. Package allows user to  automatically normalize and annotate data from Agilent and Affymetrix platforms and then perform stability analysis of expression levels. The output of package is a stability ranking for genes or miRNAs. To visualize obtained results fold change in time could be plotted for chosen by user genes or miRNAs.
+Depends: R (>= 3.3.0)
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+Imports: affy,
+    ArrayExpress,
+    org.Hs.eg.db,
+    limma,
+    oligo,
+    vsn,
+    marray,
+    huex10sttranscriptcluster.db,
+    ggplot2,
+    reshape2,
+    Matrix.utils,
+    AgiMicroRna,
+    hgug4110b.db,
+    reshape,
+    AnnotationDbi,
+    Biobase
+RoxygenNote: 6.0.1

@@ -1,0 +1,95 @@
+# na wejście pusta macierz na FC, macierz z-scoresów(tu:obiekt), dane dla kontroli i próbek napromieniowanych (linia komórkowa, treatment, czas, dawka),
+# informacja czy FC_data ma być policzony dla z-scorsów
+# macierz z fold change
+
+
+IR_FC = function(FC_data, obiekt, Controls, IR_samples, C_columns=FALSE, z_sc){
+
+  if(is.null(dim(Controls)[1])==FALSE){ # jeśli więcej niż jedna kontrola
+    
+    for (i in 1:dim(IR_samples)[1]) {
+      
+      # w tej pętli różnice w ifach polegają na innym wyznaczaniu C_for_IR
+      
+      if(dim(IR_samples)[1] == dim(Controls)[1]){ # jeśli dla każdego IR kontrola
+        C_for_IR = which(apply(Controls[,c(-3,-5)], 1, find_rows, b=IR_samples[i, c(-3,-5)]) == TRUE)
+        
+        if(length(C_for_IR) == 0){ # jesli czas kontroli rowny 0, a IR inny
+          
+          C_for_IR = which(apply(Controls[,c(-3,-4,-5)], 1, find_rows, b=IR_samples[i, c(-3,-4,-5)]) == TRUE) 
+        }
+ 
+        
+      }else if(dim(Controls)[2] == length(unique(IR_samples[,'Cell line']))){ # jeśli jedna kontrola dla każdej linii komórkowej
+        
+        C_for_IR = which(Controls[,2] == IR_samples[i, 2])
+  
+        if(length(C_for_IR)>1){ # jeli oprócz kontroli dla każdego IRa wystepuja kontrole o zerowym czasie i dawce
+          C_for_IR = which(apply(Controls[,c(2,4)], 1, find_rows, b=IR_samples[i, c(2,4)]) == TRUE)
+        }
+
+      }else{ # jeśli inna kombinacja (w założeniu kontrola dla WYBRANYCH chwil czasowych )
+        C_for_IR = which(Controls[,1] == IR_samples[i, 1])
+        time_diff = abs(as.numeric(IR_samples[i, 'Time'])-as.numeric(Controls[C_for_IR,'Time']))
+        better_C = which(time_diff == min(time_diff)) 
+ 
+        if(length(better_C)>1){ # jesli pechowo dwie identyczne różnice czasowe
+          better_C = better_C[1]
+        }
+        
+        C_for_IR = C_for_IR[better_C] # wybranie kontroli o czasie najbliższym próbce IR
+        
+      }
+      col_name_of_C = paste(Controls[C_for_IR, ], sep='', collapse = ' ')
+      col_name_of_IR = paste(IR_samples[i,], sep='', collapse = ' ')
+      if(z_sc==TRUE){
+        FC_data[, col_name_of_IR] = obiekt[,col_name_of_IR]-obiekt[,col_name_of_C]
+      }else{
+        FC_data[, col_name_of_IR] = (obiekt[, col_name_of_IR])/(obiekt[,col_name_of_C])
+      }
+      
+      if(class(C_columns) != "logical"){
+      C_columns[2,which(C_columns[1,]==col_name_of_IR)] = col_name_of_C
+      }
+      
+    }
+  }else if(length(Controls) == 5){ # gdy jedna kontrola dla wszystkich
+ 
+    if(is.null(dim(IR_samples)) == FALSE){ # jeśli więcej niż jedna próbka IR
+      for (i in 1:dim(IR_samples)[1]) {
+        
+        col_name_of_C = paste(Controls, sep='', collapse = ' ')
+        col_name_of_IR = paste(IR_samples[i,], sep='', collapse = ' ')
+        
+        if(z_sc==TRUE){
+          FC_data[, col_name_of_IR] = obiekt[,col_name_of_IR]-obiekt[,col_name_of_C]
+        }else{
+          FC_data[, col_name_of_IR] = (obiekt[, col_name_of_IR])/(obiekt[,col_name_of_C])
+        }
+        
+        if(class(C_columns) != "logical"){
+          C_columns[2,which(C_columns[1,]==col_name_of_IR)] = col_name_of_C
+        }
+      }
+      
+    }else if(length(IR_samples)==5){ # jeśli tylko jedna próbka IR
+      col_name_of_C = paste(Controls, sep='', collapse = ' ')
+      col_name_of_IR = paste(IR_samples, sep='', collapse = ' ')
+      
+      if(z_sc==TRUE){
+        FC_data[, col_name_of_IR] = obiekt[,col_name_of_IR]-obiekt[,col_name_of_C]
+      }else{
+        FC_data[, col_name_of_IR] = (obiekt[, col_name_of_IR])/(obiekt[,col_name_of_C])
+      }
+      
+      if(class(C_columns) != "logical"){
+        C_columns[2,which(C_columns[1,]==col_name_of_IR)] = col_name_of_C
+      }
+      
+    }
+    
+  }else if(length(Controls) == 0){print("There is no control for IR")}
+  
+return(list(FC_data, C_columns))
+  
+}
