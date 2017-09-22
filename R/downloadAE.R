@@ -64,7 +64,19 @@ downloadAE = function(ExpInfoTable, path){
     if(ExpInfoTable$Experiment[i] %in% ExpIds){
       sdrf = sdrfFiles[[as.character(ExpInfoTable$Experiment[i])]]
       ExpInfoTable$Platform[i] =  platformDetails[match(unique(sdrf$Array.Design.REF), platformDetails$ID), 'Desc']
-      ExpInfoTable$Label[i] = as.character(sdrf[which(as.character(sdrf$Source.Name) == as.character(ExpInfoTable$SampleID[i])), 'Label'][1])
+      lab = as.character(sdrf[which(as.character(sdrf$Source.Name) == as.character(ExpInfoTable$SampleID[i])), 'Label'])
+
+      # the if statement below needed in case that there are the same experimental conditions (on the same microarray)
+      # but with different dyes
+      if(length(lab)<2){
+        ExpInfoTable$Label[i] = lab
+      }else{
+        if(lab[1] %in% ExpInfoTable[which(ExpInfoTable$SampleID == ExpInfoTable$SampleID[i]), 'Label'] ){
+          ExpInfoTable$Label[i] = lab[2]
+        }else{
+          ExpInfoTable$Label[i] = lab[1]
+        }
+      }
     }
   }
 
@@ -107,7 +119,6 @@ downloadAE = function(ExpInfoTable, path){
     }
 
   }
-
 
   saveRDS(dane, file = paste0(path,'/',"dataAE.rds"))
 
