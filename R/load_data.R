@@ -68,28 +68,27 @@ load_data = function(dane, ExpInfoTable, sdrfFile){
 
   if(class(ExpInfoTable) == 'data.frame'){
 
-    ExpInfoTable = unique(ExpInfoTable[which(ExpInfoTable[, 'Experiment'] == unlist(strsplit(dane$sdrf, '.sdrf'))[1]), 'Platform'])
+    full_platform_name = unique(ExpInfoTable[which(ExpInfoTable[, 'Experiment'] == unlist(strsplit(dane$sdrf, '.sdrf'))[1]), 'Platform'])
+  }else{
+    full_platform_name = ExpInfoTable
   }
 
-  if(grepl('Agilent', ExpInfoTable)){
+  if(grepl('Agilent', full_platform_name)){
 
     platforma = "Agilent"
 
-  }else if(grepl('Affymetrix', ExpInfoTable)){
+  }else if(grepl('Affymetrix', full_platform_name)){
 
     platforma = "Affymetrix"
 
   }else{
-
-    platforma = ExpInfoTable
-    raw_exp = paste0(ExpInfoTable, " could not be loaded with load_data function. Only Agilent and Affymetrix platforms are supported.")
+    platforma = full_platform_name
+    raw_exp = paste0(full_platform_name,
+                     " could not be loaded with load_data function. Only Agilent and Affymetrix platforms are supported.")
+    warning(paste0("Data from", full_platform_name,
+                   " platform could not be loaded with load_data function. Only Agilent and Affymetrix platforms are supported."))
   }
 
-
-
-  if(!(platforma %in% c("Agilent", "Affymetrix"))){
-    warning(paste0(ExpInfoTable, " could not be loaded with load_data function. Only Agilent and Affymetrix platforms are supported."))
-  }
 
   #######################   AGILENT   ####################
 
@@ -115,7 +114,7 @@ load_data = function(dane, ExpInfoTable, sdrfFile){
       # jedna platforma
       if(length(array_design)<2){
         raw_exp = try(read.Agilent(do_wczytania))
-        if(is.character(raw_exp) == TRUE){
+        if(class(raw_exp) == 'try-error'){
           raw_exp = try(read.Agilent(fnames = do_wczytania, path=getwd(), name.Gf = "gMedianSignal", name.Gb = "gBGMedianSignal", name.Rf = "rMedianSignal", name.Rb = "rBGMedianSignal",  info.id="ProbeUID"))
 
         }
@@ -171,8 +170,13 @@ load_data = function(dane, ExpInfoTable, sdrfFile){
     # jedna platforma
     if(length(array_design)<2){
 
-      raw_exp = try(ReadAffy(filenames = do_wczytania, celfile.path = dane$path), silent = TRUE)
-      if(is.character(raw_exp)==TRUE){raw_exp = read.celfiles(do_wczytania)}
+      if(grepl('Human Gene', full_platform_name)){
+        raw_exp = try(read.celfiles(do_wczytania))
+      }else{
+        raw_exp = try(ReadAffy(filenames = do_wczytania, celfile.path = dane$path), silent = TRUE)
+      }
+
+
 
       # dwie platformy
     }else{

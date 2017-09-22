@@ -77,7 +77,7 @@ load_multi_data = function(dane, ExpInfoTable, sdrfFiles){
   }
 
   if(length(which(is.character(raw_exp)==TRUE))>0){
-    warning(paste("Data with index", as.character(which(is.character(raw_exp)==TRUE)), "could not be loaded.", sep=' '))
+    warning(paste("Data with index", as.character(which(class(raw_exp) == 'try-error')), "could not be loaded.", sep=' '))
   }
 
   return(raw_expression_data = raw_exp)
