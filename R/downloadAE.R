@@ -45,35 +45,14 @@ downloadAE = function(ExpInfoTable, path){
   ExpIds = ExpIds[-grep(".", ExpIds, fixed = TRUE)]
 
   ################################################################
-  ###########  Download data to specified directory   ############
-  ################################################################
-
-  dane = rep(list(list()), length(ExpIds))
-
-  for (i in 1:length(dane)) {
-
-    dir.create(paste(path,"/", ExpIds[i], sep = ""), showWarnings = TRUE,
-               recursive = FALSE, mode = "0777")
-
-    dane[[i]] = try(getAE(ExpIds[i], path = paste(path,"/", ExpIds[i], sep = ""),
-                          type = 'raw', extract = TRUE))
-  }
-
-  if(length(which(is.character(dane)==TRUE))>0){
-    warning(paste("Data with id:", as.character(ExpIds[which(is.character(dane)==TRUE)]), "could not be downloaded.", sep=' '))
-  }
-
-  saveRDS(dane, file = paste0(path,'/',"dataAE.rds"))
-
-  ################################################################
   #####  Read in .sdrf file, find platform type and label   ######
   ################################################################
-  sdrfFiles = rep(list(list()), length(dane))
+  sdrfFiles = rep(list(list()), length(ExpIds))
   ExpInfoTable$Platform = rep(NA, dim(ExpInfoTable)[1])
   ExpInfoTable$Label = rep(NA, dim(ExpInfoTable)[1])
 
-  for (i in 1:length(dane)) {
-    sdrfFiles[[i]] = read.delim(paste(dane[[i]]$path, dane[[i]]$sdrf, sep = '/'))
+  for (i in 1:length(ExpIds)) {
+    sdrfFiles[[i]] = read.delim(paste0("https://www.ebi.ac.uk/arrayexpress/files/", ExpIds[i], "/", ExpIds[i], ".sdrf.txt"))
   }
 
   names(sdrfFiles) = ExpIds
@@ -88,6 +67,50 @@ downloadAE = function(ExpInfoTable, path){
       ExpInfoTable$Label[i] = as.character(sdrf[which(as.character(sdrf$Source.Name) == as.character(ExpInfoTable$SampleID[i])), 'Label'][1])
     }
   }
+
+  ################################################################
+  ###########  Download data to specified directory   ############
+  ################################################################
+
+  dane = rep(list(list()), length(ExpIds))
+
+  for (i in 1:length(dane)) {
+
+    # get platform type
+    full_platform_name = unique(ExpInfoTable[which(ExpInfoTable[, 'Experiment'] == ExpIds[i]), 'Platform'])
+
+    if(grepl('Agilent', full_platform_name)){
+      platform = "Agilent"
+    }else if(grepl('Affymetrix', full_platform_name)){
+      platform = "Affymetrix"
+    }else{
+      platform = full_platform_name
+    }
+
+
+    # check if the platform type is supported
+
+    if(platform %in% c("Agilent", "Affymetrix")){
+
+      dir.create(paste0(path,"/", ExpIds[i]), showWarnings = TRUE,
+                 recursive = FALSE, mode = "0777")
+
+      dane[[i]] = try(getAE(ExpIds[i], path = paste0(path,"/", ExpIds[i]),
+                            type = 'raw', extract = TRUE))
+
+      if(class(dane[[i]]) == 'try-error'){
+        warning(paste0('Raw data with ', ExpIds[i], ' ArrayExpress ID could not be downloaded'))
+      }
+    }else{
+      warning(paste0(platform, ' platform is not supported (', ExpIds[i],
+                     ' ArrayExpress ID). For more information check details in downloadAE function help.'))
+    }
+
+  }
+
+
+  saveRDS(dane, file = paste0(path,'/',"dataAE.rds"))
+
 
   return(list(downloaded_data = dane, ExpInfoTable = ExpInfoTable, sdrfFiles = sdrfFiles))
 }
