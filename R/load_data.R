@@ -1,6 +1,3 @@
-# na wejscie obiekt dane(z funkcji getAE), platforma,
-# na wyjscie sdrf oraz wczytane surowe dane
-
 #' @title Loading microarray data from single experiment downloaded from ArrayExpress database
 #'
 #' @param dane A list from downloadAE function.
@@ -66,31 +63,32 @@ load_data = function(dane, ExpInfoTable, sdrfFile){
 
   parent_directory = getwd()
 
-  if(class(ExpInfoTable) == 'data.frame'){
 
+  ################################################################
+  #######  Find platform type of data downloaded from AE  ########
+  ################################################################
+  if(class(ExpInfoTable) == 'data.frame'){
     full_platform_name = unique(ExpInfoTable[which(ExpInfoTable[, 'Experiment'] == unlist(strsplit(dane$sdrf, '.sdrf'))[1]), 'Platform'])
   }else{
     full_platform_name = ExpInfoTable
   }
 
   if(grepl('Agilent', full_platform_name)){
-
     platforma = "Agilent"
-
   }else if(grepl('Affymetrix', full_platform_name)){
-
     platforma = "Affymetrix"
-
   }else{
     platforma = full_platform_name
     raw_exp = paste0(full_platform_name,
                      " could not be loaded with load_data function. Only Agilent and Affymetrix platforms are supported.")
-    warning(paste0("Data from", full_platform_name,
+    warning(paste0("Data from ", full_platform_name,
                    " platform could not be loaded with load_data function. Only Agilent and Affymetrix platforms are supported."))
   }
 
 
-  #######################   AGILENT   ####################
+  ################################################################
+  #########  Load Agilent raw files from ArrayExpress  ###########
+  ################################################################
 
   if(platforma == "Agilent"){
 
@@ -150,7 +148,9 @@ load_data = function(dane, ExpInfoTable, sdrfFile){
   }
 
 
-  #######################   AFFYMETRIX   ####################
+  ################################################################
+  #######  Load Affymetrix raw files from ArrayExpress  ##########
+  ################################################################
   if(platforma == "Affymetrix"){
 
     # ktore nazwy nie zawieraja miRNA
@@ -161,8 +161,6 @@ load_data = function(dane, ExpInfoTable, sdrfFile){
     without_txt = grep(".txt", do_wczytania, invert = TRUE)
     do_wczytania = do_wczytania[without_txt]
 
-    dyes = levels(sdrfFile[,'Label'])
-
     # czy sa dwie platformy
     array_design =  unique(sdrfFile[intersect(without_micro, without_txt), "Array.Design.REF"])
     setwd(dane$path)
@@ -170,7 +168,7 @@ load_data = function(dane, ExpInfoTable, sdrfFile){
     # jedna platforma
     if(length(array_design)<2){
 
-      if(grepl('Human Gene', full_platform_name)){
+      if(grepl('Human Gene', full_platform_name) || grepl('Exon', full_platform_name)){
         raw_exp = try(read.celfiles(do_wczytania))
       }else{
         raw_exp = try(ReadAffy(filenames = do_wczytania, celfile.path = dane$path), silent = TRUE)
@@ -185,14 +183,16 @@ load_data = function(dane, ExpInfoTable, sdrfFile){
         do_wczytania = sdrfFile[which(sdrfFile[,"Array.Design.REF"]==array_design[k]),'Array.Data.File']
         do_wczytania = as.character(do_wczytania)
 
-        raw_exp[[k]] = try(ReadAffy(filenames = do_wczytania, celfile.path = dane$path), silent = TRUE)
-        if(is.character(raw_exp)==TRUE){raw_exp = read.celfiles(do_wczytania)}
+        if(grepl('Human Gene', full_platform_name) || grepl('Exon', full_platform_name)){
+          raw_exp[[k]] = try(read.celfiles(do_wczytania))
+        }else{
+          raw_exp[[k]] = try(ReadAffy(filenames = do_wczytania, celfile.path = dane$path), silent = TRUE)
+        }
       }
 
     }
   }
 
   setwd(parent_directory)
-
   return(raw_exp)
 }

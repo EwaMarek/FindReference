@@ -80,5 +80,18 @@ load_multi_data = function(dane, ExpInfoTable, sdrfFiles){
     warning(paste("Data with index", as.character(which(class(raw_exp) == 'try-error')), "could not be loaded.", sep=' '))
   }
 
-  return(raw_expression_data = raw_exp)
+  ### check if there are any user's raw data
+  if(length(grep("/", ExpInfoTable$Experiment, fixed = TRUE)) > 0){
+
+    users_exp = unique(ExpInfoTable[grep("/", ExpInfoTable$Experiment, fixed = TRUE), 'Experiment'])
+    raw_exp2 = rep(list(list()), length(users_exp))
+
+    for (i in 1:length(users_exp)){
+      raw_exp2[[i]] = load_users_data(users_exp[i], ExpInfoTable)
+    }
+
+  }
+
+
+  return(raw_expression_data = c(raw_exp, raw_exp2))
 }

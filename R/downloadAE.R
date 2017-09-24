@@ -43,6 +43,7 @@ downloadAE = function(ExpInfoTable, path){
 
   ExpIds = unique(ExpInfoTable$Experiment)
   ExpIds = ExpIds[-grep(".", ExpIds, fixed = TRUE)]
+  ExpIds = ExpIds[-grep("/", ExpIds, fixed = TRUE)]
 
   ################################################################
   #####  Read in .sdrf file, find platform type and label   ######
