@@ -58,51 +58,30 @@
 #'
 #' @export
 
-norm_and_annot_by_platform = function(obiekt, platform){
+norm_and_annot_by_platform = function(obiekt){
 
-  if(grepl('Agilent', platform)){
+  if(class(obiekt) %in% c('marrayRaw', 'EListRaw')){
 
-    platform = "Agilent"
+    wyjscie = processAgilent(obiekt)
 
-  }else if(grepl('Affymetrix', platform)){
+  }else if(class(obiekt) %in% c('ExonFeatureSet', 'AffyBatch', 'GeneFeatureSet')){
 
-    platform = "Affymetrix"
+    wyjscie = processAffy(obiekt)
+
+  }else if(class(obiekt) == 'list'){
+
+    wyjscie = rep(list(list()), length(obiekt))
+
+    for(i in 1:length(obiekt)){
+      if(class(obiekt[[i]]) %in% c('marrayRaw', 'EListRaw')){
+        wyjscie[[i]] = processAgilent(obiekt[[i]])
+      }else if(class(obiekt[[i]]) %in% c('ExonFeatureSet', 'AffyBatch', 'GeneFeatureSet')){
+        wyjscie[[i]] = processAffy(obiekt[[i]])
+      }
+    }
 
   }else{
-
-    platform = platform
-    wyjscie = paste("Only 'Agilent' and 'Affymetrix' platforms are supported. You have chosen:", as.character(platform), sep=' ')
-  }
-
-
-  ### Agilent
-
-  if(platform == 'Agilent'){
-
-    if(class(obiekt) == 'list'){
-
-      wyjscie = lapply(obiekt, processAgilent)
-
-    }else{
-
-      wyjscie = processAgilent(obiekt)
-
-    }
-
-
-  ### Affymetrix
-
-  }else if(platform == 'Affymetrix'){
-
-    if(class(obiekt) == 'list'){
-
-      wyjscie = lapply(obiekt, processAffy)
-
-    }else{
-
-      wyjscie = processAffy(obiekt)
-
-    }
+    wyjscie = "Data could not be processed. Only Affymetrix and Agilent platforms are supported."
   }
 
   return(wyjscie)

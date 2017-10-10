@@ -45,11 +45,11 @@
 
 multi_norm_and_annot = function(dataList, ExpInfoTable){
 
-  platformVector = unique(ExpInfoTable$Platform)
+  #platformVector = unique(ExpInfoTable$Platform)
   goOut = rep(list(list()), length(dataList))
 
   for(i in 1:length(dataList)){
-    goOut[[i]] = norm_and_annot_by_platform(dataList[[i]], platformVector[i])
+    goOut[[i]] = norm_and_annot_by_platform(dataList[[i]])
   }
 
   if(length(which(is.character(goOut)==TRUE))>0){
