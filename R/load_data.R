@@ -67,16 +67,16 @@ load_data = function(dane, ExpInfoTable, sdrfFile){
   ################################################################
   #######  Find platform type of data downloaded from AE  ########
   ################################################################
-  if(class(ExpInfoTable) == 'data.frame'){
-    full_platform_name = unique(ExpInfoTable[which(ExpInfoTable[, 'Experiment'] == unlist(strsplit(dane$sdrf, '.sdrf'))[1]), 'Platform'])
-  }else{
-    full_platform_name = ExpInfoTable
-  }
 
-  if(grepl('Agilent', full_platform_name)){
-    platforma = "Agilent"
+  full_platform_name = unique(ExpInfoTable[which(ExpInfoTable[, 'Experiment'] == sub('.sdrf.txt', '', dane$sdrf, fixed = TRUE)),'Platform'])
+
+  if(is.na(full_platform_name)==TRUE || length(full_platform_name) == 0){
+    platforma = "NA"
+    raw_exp = "Could not be loaded with load_data function. Only Agilent and Affymetrix platforms are supported."
   }else if(grepl('Affymetrix', full_platform_name)){
     platforma = "Affymetrix"
+  }else if(grepl('Agilent', full_platform_name)){
+    platforma = "Agilent"
   }else{
     platforma = full_platform_name
     raw_exp = paste0(full_platform_name,
@@ -165,10 +165,13 @@ load_data = function(dane, ExpInfoTable, sdrfFile){
     array_design =  unique(sdrfFile[intersect(without_micro, without_txt), "Array.Design.REF"])
     setwd(dane$path)
 
+    # # find cdf name
+    # cleancdfname(read.celfile.header(do_wczytania[1], info = 'basic')$cdfName, addcdf = FALSE)
+
     # jedna platforma
     if(length(array_design)<2){
-
-      if(grepl('Human Gene', full_platform_name) || grepl('Exon', full_platform_name)){
+#grepl('Human Gene', full_platform_name) ||
+      if(grepl('Exon', full_platform_name)){
         raw_exp = try(read.celfiles(do_wczytania))
       }else{
         raw_exp = try(ReadAffy(filenames = do_wczytania, celfile.path = dane$path), silent = TRUE)

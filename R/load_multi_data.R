@@ -69,11 +69,10 @@
 
 load_multi_data = function(dane, ExpInfoTable, sdrfFiles){
 
-  platforma = unique(ExpInfoTable$Platform)
   raw_exp = rep(list(list()), length(dane))
 
   for(i in 1:length(dane)){
-    raw_exp[[i]] = load_data(dane[[i]], platforma[i], sdrfFiles[[i]])
+    raw_exp[[i]] = load_data(dane[[i]], ExpInfoTable, sdrfFiles[[i]])
   }
 
   if(length(which(is.character(raw_exp)==TRUE))>0){
