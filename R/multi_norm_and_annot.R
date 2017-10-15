@@ -43,9 +43,8 @@
 #' @export
 
 
-multi_norm_and_annot = function(dataList, ExpInfoTable){
+multi_norm_and_annot = function(dataList){
 
-  #platformVector = unique(ExpInfoTable$Platform)
   goOut = rep(list(list()), length(dataList))
 
   for(i in 1:length(dataList)){
