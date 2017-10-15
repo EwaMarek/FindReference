@@ -36,7 +36,7 @@
 #'
 add_experiments = function(nData, procData, ExpInfoTable, EG2SYM){
 
-  #EG2SYM = as.list(org.Hs.egSYMBOL)
+  EG2SYM = AnnotationDbi::as.list(org.Hs.egSYMBOL)
   ################################################################
   ############  Check correctness of added data ##############
   ################################################################
@@ -48,8 +48,12 @@ add_experiments = function(nData, procData, ExpInfoTable, EG2SYM){
            (third argument of add_experiment function).")
     }
 
-    procData = procData[-which(is.na(rownames(procData)) == TRUE), ]
-    procData = procData[-which(rownames(procData) == ''),]
+    # delete rows with no row.names or row.names equal to NA
+    no_rownames = which(is.na(rownames(procData)) == TRUE | rownames(procData) == '')
+    if(length(no_rownames)>0){
+      procData = procData[-no_rownames, ]
+    }
+
 
     if(sum(rownames(procData) %in% names(EG2SYM)) == 0   &  sum(rownames(procData) %in% EG2SYM) == 0){
 
@@ -59,7 +63,18 @@ add_experiments = function(nData, procData, ExpInfoTable, EG2SYM){
 
       entrezID = AnnotationDbi::mget(rownames(procData), revmap(org.Hs.egSYMBOL), ifnotfound = NA)
       rownames(procData) = entrezID
+
+      # delete rows without EntrezID symbol
+      rows_to_remove = which(is.na(rownames(procData)) == TRUE)
+
+      if(length(rows_to_remove)>0){
+        procData = procData[-rows_to_remove, ]
+      }
+
+
     }
+
+    allProcData = c(nData, list(procData))
 
   }else if(class(procData) == 'list'){
 
@@ -69,8 +84,12 @@ add_experiments = function(nData, procData, ExpInfoTable, EG2SYM){
            (third argument of add_experiment function).")
       }
 
-      procData[[i]] = procData[[i]][-which(is.na(rownames(procData[[i]])) == TRUE), ]
-      procData[[i]] = procData[[i]][-which(rownames(procData[[i]]) == ''),]
+
+      # delete rows with no row.names or row.names equal to NA
+      no_rownames = which(is.na(rownames(procData[[i]])) == TRUE | rownames(procData[[i]]) == '')
+      if(length(no_rownames)>0){
+        procData[[i]] = procData[[i]][-no_rownames, ]
+      }
 
       if(sum(rownames(procData[[i]]) %in% names(EG2SYM)) == 0   &  sum(rownames(procData[[i]]) %in% EG2SYM) == 0){
 
@@ -80,13 +99,19 @@ add_experiments = function(nData, procData, ExpInfoTable, EG2SYM){
 
         entrezID = AnnotationDbi::mget(rownames(procData[[i]]), revmap(org.Hs.egSYMBOL), ifnotfound = NA)
         rownames(procData[[i]]) = entrezID
+
+        # delete rows without EntrezID symbol
+        rows_to_remove = which(is.na(rownames(procData[[i]])) == TRUE)
+
+        if(length(rows_to_remove)>0){
+          procData[[i]] = procData[[i]][-rows_to_remove, ]
+        }
+
       }
     }
+
+    allProcData = c(nData, procData)
   }
 
-  ################################################################
-  ####################  Add new processed data ###################
-  ################################################################
-
-  allProcData = c(nData, procData)
+  return(allProcData)
 }
