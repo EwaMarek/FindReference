@@ -119,44 +119,43 @@ create_ranking = function(all_exp_data, all_uniq_samples, miRNA = FALSE){
   z_scores_data = rep(list(list()), length(all_exp_data))
 
   for (i in 1:length(all_exp_data)) {
-    if(class(all_exp_data[[i]]) != 'list'){
+    if(class(all_exp_data[[i]]) != 'list' & class(all_exp_data[[i]]) != 'character'){
       z_scores_data[[i]] = z_scores(all_exp_data[[i]])
     }else if(class(all_exp_data[[i]]) == 'list'){
       z_scores_data[[i]] = lapply(all_exp_data[[i]], z_scores)
     }
   }
 
+
   #############################################################################
   ### Calculate fold change and find control sample for each treated sample ###
   #############################################################################
 
   FC_data = rep(list(list()), length(z_scores_data))
-  C_for_IR = c() #FC_data
+  C_for_IR = rep(list(list()), length(z_scores_data)) #FC_data
 
   for (i in 1:length(z_scores_data)) {
-    FC_dataset = log_fold_change(z_scores_data[[i]], all_uniq_samples[[i]], TRUE)
-    FC_data[[i]] = FC_dataset[[1]]
-
-    if(i==1){
-      C_for_IR = FC_dataset[[2]]
-    }else if(class(FC_dataset[[2]]) != 'character'){
-      if(class(FC_dataset[[2]]) != 'list'){
-        C_for_IR = cbind(C_for_IR, FC_dataset[[2]])
-      }else{
-        C_for_IR = cbind(C_for_IR, cbind(FC_dataset[[2]][[1]], FC_dataset[[2]][[2]]))
-      }
+    if(class(all_uniq_samples[[i]]) != "character"){
+      FC_dataset = log_fold_change(z_scores_data[[i]], all_uniq_samples[[i]], TRUE)
+      FC_data[[i]] = FC_dataset[[1]]
+      C_for_IR[[i]] = FC_dataset[[2]]
+    }else{
+      FC_data[[i]] = "No data"
+      C_for_IR[[i]] = "No data"
     }
   }
-
 
   #############################################################################
   ######################### Take controls expression ##########################
   #############################################################################
   C_expression = rep(list(list()), length(FC_data))
   for(i in 1:length(FC_data)){
-    C_expression[[i]] = C_log_exp(z_scores_data[[i]], C_for_IR)
+    if(class(C_for_IR[[i]]) != "character"){
+      C_expression[[i]] = C_log_exp(z_scores_data[[i]], C_for_IR[[i]])
+    }else{
+      C_expression[[i]] = NULL
     }
-
+  }
 
   #############################################################################
   ########## Calculate gene score for each experiment independently ###########
@@ -165,7 +164,7 @@ create_ranking = function(all_exp_data, all_uniq_samples, miRNA = FALSE){
   exp_score = rep(list(list()), length(FC_data))
 
   for(i in 1:length(FC_data)){
-    exp_score[[i]] = gene_exp_score(FC_data[[i]], C_expression[[i]], C_for_IR)
+    exp_score[[i]] = gene_exp_score(FC_data[[i]], C_expression[[i]], C_for_IR[[i]])
   }
 
   #############################################################################

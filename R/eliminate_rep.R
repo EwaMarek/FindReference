@@ -72,7 +72,7 @@ eliminate_rep = function(expMat, eid, ExpInfoTable){
       }
 
       ### prepare matrix for results
-      uniq_Samples = unique(ExpInfoTable[which(ExpInfoTable$SampleID %in% colnames(expMat)), -2])
+      uniq_Samples = unique(ExpInfoTable[which(ExpInfoTable$SampleID %in% colnames(expMat) & ExpInfoTable$Experiment == eid), -2])
       Svector = paste0("S", as.character(1:dim(uniq_Samples)[1]))
       uniq_Samples$internalId = Svector
       exprdata_norep=array(0,dim=c(dim(expMat)[1],dim(uniq_Samples)[1]))
@@ -112,7 +112,7 @@ eliminate_rep = function(expMat, eid, ExpInfoTable){
       }
 
       ### prepare matrix for results
-      uniq_Samples = unique(ExpInfoTable[which(ExpInfoTable$SampleID %in% colnames(expMat[[1]])), c(-2, -8)])
+      uniq_Samples = unique(ExpInfoTable[which(ExpInfoTable$SampleID %in% colnames(expMat[[1]]) & ExpInfoTable$Experiment == eid), c(-2, -8)])
       Svector = paste0("S", as.character(1:dim(uniq_Samples)[1]))
       uniq_Samples$internalId = Svector
 
@@ -152,5 +152,5 @@ eliminate_rep = function(expMat, eid, ExpInfoTable){
     uniq_Samples = "No data"
 
   }
-  return(list(exprdata_norep, uniq_Samples))
+  return(list(expVals = exprdata_norep, uniqSampInfo = uniq_Samples))
 }
