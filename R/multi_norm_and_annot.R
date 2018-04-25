@@ -55,6 +55,8 @@ multi_norm_and_annot = function(dataList){
     warning(paste("Data with index", as.character(which(is.character(goOut)==TRUE)), "could not be normalized.", sep=' '))
   }
 
+  names(goOut) = names(dataList)
+
   return(goOut)
 
 }

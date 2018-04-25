@@ -121,7 +121,7 @@ downloadAE = function(ExpInfoTable, path){
 
   }
 
-  saveRDS(dane, file = paste0(path,'/',"dataAE.rds"))
+  saveRDS(list(downloaded_data = dane, ExpInfoTable = ExpInfoTable, sdrfFiles = sdrfFiles), file = paste0(path,'/',"dataAE.rds"))
 
 
   return(list(downloaded_data = dane, ExpInfoTable = ExpInfoTable, sdrfFiles = sdrfFiles))

@@ -1,0 +1,25 @@
+Comment[ArrayExpressAccession]	E-GEOD-67309
+MAGE-TAB Version	1.1													
+Public Release Date	2015-03-31
+Investigation Title	Low- and middle-dose of radiation on hNPC and HUVEC													
+Comment[Submitted Name]	Low- and middle-dose of radiation on hNPC and HUVEC
+Experiment Description	Many neural progenitor cells present in the fetus, but also in adult brain, which play a major role for the reproduction for healingin regeneration of neuronal cells, when differentiated cells are damaged. However, effects of radiation effect on undifferentiated neural progenitor cells remained unclear. The radiation doses of medical exposure, pollution by nuclear power plant accidents, and other exposure of workers; medical workers, airline crews, and astronaut have been focused. In this study, we report the effects of low- to middle- dose doses of radiation on cultured human neural progenitor cells (hNPC) differentiated derived from embryonic stem (ES) cells, which are partially compared with those of human umbilical vein endothelial cell (HUVEC). Gene expression was changed by continuous exposure of 31mGy; 0.0072 mGy/ minute, 124mGy; 0.029 mGy/ minute and 496mGy; 0.085 mGy/ minute for seventy-two hours. While shortening in neurite length by 124mGy was not significant, its decrease was observed by 496 mGy of radiation. Number of altered pathways increased dose-dependently. By thirty-one mGy per 72 hours of radiation, gene expression of inflammatory pathways involving interferon and cell junction were changed. By 124 mGy of radiation, DNA double strand break repair pathways and cell adhesion molecules were affected. Then, 496 mGy of radiation for 72 hours altered translational DNA synthesis pathway, apoptotic pathway, various metabolic pathways and neural differentiation pathways. Dose-dependent transcriptional changes by low- to middle- radiation are consistent with gradual axonal shortening, growth arrest and neural cell death. Undifferentiated hNPC derived from embryonic stem (ES) cells and HUVECs synchronized in G1 cell cycle phase were irradiated from sealed cesium-137 for 72 h.													
+Term Source Name	ArrayExpress	EFO
+Term Source File	http://www.ebi.ac.uk/arrayexpress/	http://www.ebi.ac.uk/efo/efo.owl												
+Person Last Name	Katsura	Katsura	Cyou-Nakamine	Inoue	Kaneki	Taguchi	Kobayashi	Amagasa	Kaji	Sone	Kodama	Miyagawa	Wada	Akimitsu
+Person First Name	Mari	M	H	T	K	A	M	S	T	H	T	K	Y	N
+Person Email	marikatsura-tky@umin.ac.jp													
+Person Affiliation	The University of Tokyo													
+Person Address	Isotope Science Center, The University of Tokyo, 2-11-16 Yayoi, Bunkyo-ku, Tokyo, Japan													
+Person Roles	submitter													
+Protocol Name	P-GSE67309-1	P-GSE67309-5	P-GSE67309-6	P-GSE67309-2	P-GSE67309-8	P-GSE67309-3	P-GSE67309-9	P-GSE67309-4	P-GSE67309-7					
+Protocol Description	The data were analyzed with Microarray Suite version 5.0 (MAS 5.0) using Affymetrix default analysis settings and global scaling as normalization method. The trimmed mean target intensity of each array was arbitrarily set to 100. ID_REF =  VALUE = MAS5.0 signal intensity	Biotinylated cRNA were prepared according to the standard Affymetrix protocol from 6 ug total RNA (Expression Analysis Technical Manual, 2001, Affymetrix).	Following fragmentation, 10 ug of cRNA were hybridized for 16 hr at 45C on GeneChip Drosophila Genome Array. GeneChips were washed and stained in the Affymetrix Fluidics Station 400.	After confluence medium was replaced with that containing 0.5% FBS to synchronize for sixteen hours. Then they were exposed to chronic radiation for 72h. .	After confluence, they were exposed to chronic radiation for 72h.	Human umbilical vein endothelial cell (HUVEC) from sixth to twelfth passages was grown in endothelial cell basal medium-2 (EBM-2) (Lonza) with 5% fetal bovine serum (FBS).	The EBs were seeded onto ornithine–laminin511 (O/L)-coated 24-well plates or ornithine–laminin511 (O/L)-coated111 35 mm dishes to promote proliferation and neuronal differentiation with the sequential exchange of neuronal proliferation media and differentiation media..	Total RNA was extracted with RNeasy Micro Kits.	GeneChips were scanned using the Hewlett-Packard GeneArray Scanner G2500A.					
+Protocol Type	normalization data transformation protocol	labelling protocol	hybridization protocol	sample treatment protocol	sample treatment protocol	growth protocol	growth protocol	nucleic acid extraction protocol	array scanning protocol					
+Experimental Factor Name	irradiated with	cell line	cell type											
+Experimental Factor Type	irradiated with	cell line	cell type											
+Comment[SecondaryAccession]	GSE67309													
+Comment[GEOReleaseDate]	2015-03-31													
+Comment[ArrayExpressSubmissionDate]	2015-03-26													
+Comment[GEOLastUpdateDate]	2015-03-31													
+Comment[AEExperimentType]	transcription profiling by array													
+SDRF File	E-GEOD-67309.sdrf.txt

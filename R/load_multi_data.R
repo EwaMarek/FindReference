@@ -73,6 +73,16 @@ load_multi_data = function(dane, ExpInfoTable, sdrfFiles){
 
   for(i in 1:length(dane)){
     raw_exp[[i]] = load_data(dane[[i]], ExpInfoTable, sdrfFiles[[i]])
+    if(length(sub('.sdrf.txt', '', dane[[i]]$sdrf, fixed = TRUE))>0){
+      names(raw_exp)[i] = sub('.sdrf.txt', '', dane[[i]]$sdrf, fixed = TRUE)
+    }else{
+      names(raw_exp)[i] = 'NA'
+    }
+
+  }
+
+  if(class(raw_exp) == 'matrix'){
+    raw_exp = list(raw_exp)
   }
 
   if(length(which(is.character(raw_exp)==TRUE))>0){
@@ -87,10 +97,14 @@ load_multi_data = function(dane, ExpInfoTable, sdrfFiles){
 
     for (i in 1:length(users_exp)){
       raw_exp2[[i]] = load_users_data(users_exp[i], ExpInfoTable)
+      names(raw_exp2)[i] = as.character(users_exp[i])
+    }
+
+    if(class(raw_exp2) == 'matrix'){
+      raw_exp2 = list(raw_exp2)
     }
 
   }
-
 
   return(raw_expression_data = c(raw_exp, raw_exp2))
 }

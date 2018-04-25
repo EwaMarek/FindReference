@@ -34,7 +34,7 @@
 #'
 #' @export
 #'
-add_experiments = function(nData, procData, ExpInfoTable, EG2SYM){
+add_experiments = function(nData, procData, ExpInfoTable){
 
   EG2SYM = AnnotationDbi::as.list(org.Hs.egSYMBOL)
   ################################################################
@@ -74,7 +74,10 @@ add_experiments = function(nData, procData, ExpInfoTable, EG2SYM){
 
     }
 
+    name = ExpInfoTable[intersect(which(ExpInfoTable$SampleID %in% colnames(procData)),
+                              grep('.', ExpInfoTable[,'Experiment'], fixed = TRUE)), 'Experiment'][1]
     allProcData = c(nData, list(procData))
+    names(allProcData)[length(allProcData)] = as.character(name)
 
   }else if(class(procData) == 'list'){
 
@@ -105,6 +108,8 @@ add_experiments = function(nData, procData, ExpInfoTable, EG2SYM){
 
         if(length(rows_to_remove)>0){
           procData[[i]] = procData[[i]][-rows_to_remove, ]
+          names(procData)[i] = as.character(ExpInfoTable[intersect(which(ExpInfoTable$SampleID %in% colnames(procData[[i]])),
+                                                                   grep('.', ExpInfoTable[,'Experiment'], fixed = TRUE)), 'Experiment'][1])
         }
 
       }
