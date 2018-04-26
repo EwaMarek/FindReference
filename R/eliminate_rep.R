@@ -10,6 +10,8 @@
 #' @param  ExpInfoTable A data.frame with information about all of the experiments. The column names must be 'Experiment', 'SampleID', 'CellLine', 'Treatment', 'Time', 'Dose'
 #' 'Platform', 'Label' exactly in this order.
 #'
+#' @param sdrfFiles A list of sdrf files content.
+#'
 #' @return Function returns list with two elements. The first one is an expression matrix without replications with changed column names.
 #' The second one is a data.frame with information about UNIQUE samples and is needed to create stability ranking.
 #'
@@ -45,7 +47,7 @@
 #'
 #' @export
 
-eliminate_rep = function(expMat, eid, ExpInfoTable){
+eliminate_rep = function(expMat, eid, ExpInfoTable, sdrfFiles){
 
   if(class(expMat) != 'character'){
 
@@ -99,15 +101,28 @@ eliminate_rep = function(expMat, eid, ExpInfoTable){
         }
       }
 
-    }else{
+    }else{ # double coloured experiment
 
       ### change the colnames so they will be the same as in ExpInfoTable
       act_sdrf = sdrfFiles[eid]
-      if(!(is.null(unlist(act_sdrf)))){
-        new_cols1 = act_sdrf[[1]]$Source.Name[match(gsub("./", "", colnames(expMat[[1]])), act_sdrf[[1]]$Array.Data.File)]
-        colnames(expMat[[1]]) = new_cols1
+      new_cols1 = vector(mode = 'character', dim(expMat[[1]])[2])
+      new_cols2 = vector(mode = 'character', dim(expMat[[1]])[2])
 
-        new_cols2 = act_sdrf[[1]]$Source.Name[match(gsub("./", "", colnames(expMat[[2]])), act_sdrf[[1]]$Array.Data.File)]
+      if(!(is.null(unlist(act_sdrf)))){
+
+        for (z in 1:dim(expMat[[1]])[2]) {
+
+          var1 = which(gsub("./", "", colnames(expMat[[1]])[z]) == act_sdrf[[1]]$Array.Data.File)
+          var2 = which(act_sdrf[[1]]$Label == dyes[1])
+          new_cols1[[z]] = as.character(act_sdrf[[1]]$Source.Name[intersect(var1, var2)])
+
+          var3 = which(gsub("./", "", colnames(expMat[[2]])[z]) == act_sdrf[[1]]$Array.Data.File)
+          var4 = which(act_sdrf[[1]]$Label == dyes[2])
+          new_cols2[[z]] = as.character(act_sdrf[[1]]$Source.Name[intersect(var3, var4)])
+
+        }
+
+        colnames(expMat[[1]]) = new_cols1
         colnames(expMat[[2]]) = new_cols2
       }
 
@@ -117,7 +132,7 @@ eliminate_rep = function(expMat, eid, ExpInfoTable){
       uniq_Samples$internalId = Svector
 
       exprdata_norep=array(0,dim=c(dim(expMat[[1]])[1],dim(uniq_Samples)[1]))
-      row.names(exprdata_norep) = row.names(expMat)
+      row.names(exprdata_norep) = row.names(expMat[[1]])
       colnames(exprdata_norep) = Svector
 
       ### calculate mean value
@@ -126,12 +141,18 @@ eliminate_rep = function(expMat, eid, ExpInfoTable){
         # find rows in ExpInfoTable that are repetetive
         uniIDS = vector(mode='logical', length = dim(ExpInfoTable)[1])
         for(j in 1:dim(ExpInfoTable)[1]){
+
           uniIDS[j] = find_rows(ExpInfoTable[j, c(1, 3:6)], uniq_Samples[i, c(1:5)])
-        }
+
+         }
 
         # find repetetive sample names
-        rep_micro_names_dye1 = colnames(expMat[[1]])[which(colnames(expMat[[1]]) %in% ExpInfoTable$SampleID[uniIDS])]
-        rep_micro_names_dye2 = colnames(expMat[[2]])[which(colnames(expMat[[2]]) %in% ExpInfoTable$SampleID[uniIDS])]
+        cy3dye = which(ExpInfoTable$Experiment == eid & ExpInfoTable$Label == dyes[1])
+        cy5dye = which(ExpInfoTable$Experiment == eid & ExpInfoTable$Label == dyes[2])
+
+        #which(ExpInfoTable$Label[uniIDS] == dyes[1])])
+        rep_micro_names_dye1 = colnames(expMat[[1]])[which(colnames(expMat[[1]]) %in% ExpInfoTable$SampleID[intersect(which(uniIDS==TRUE), cy3dye)])]
+        rep_micro_names_dye2 = colnames(expMat[[2]])[which(colnames(expMat[[2]]) %in% ExpInfoTable$SampleID[intersect(which(uniIDS==TRUE), cy5dye)])]
 
         # take the data out
         the_Cy3 = expMat[[1]]

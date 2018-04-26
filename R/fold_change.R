@@ -12,7 +12,7 @@ fold_change = function(obiekt, uniq_S, C_columns, z_sc){
   FC_data=array(0,dim=c(length(obiekt[, 1]), how_many_col))
   row.names(FC_data) = row.names(obiekt)
 
-  #
+  # znajdz probk
   col = try(apply(uniq_S[which(uniq_S[,'Treatment'] != 'C' ),][c(dim(uniq_S)[2])], 1, paste, sep='', collapse = ' '), silent = TRUE)
 
   if(class(col) == "try-error"){ # jeśli tylko jedna to apply nie działa, stąd to co poniżej

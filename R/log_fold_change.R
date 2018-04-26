@@ -1,7 +1,7 @@
 # na wejście macierz z-scoresów, tabela z informacjami o unikalnych próbkach oraz parametr określający czy ma być zwracana informacja
 # o tym, która kontrola została zastosowana do policzenia lFC dla danej próbki IR (TRUE/FALSE), czy liczymy dla z-scoresów
 
-# na wyjście macierz z policzonymi logFC oraz informacja o tym, która kontrola zostaął użyta dla danej próbki IR
+# na wyjście macierz z policzonymi logFC oraz informacja o tym, która kontrola została użyta dla danej próbki IR
 
 log_fold_change = function(z_sc, uniq_S, add_info, z_score=TRUE){
 

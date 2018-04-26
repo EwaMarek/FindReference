@@ -200,7 +200,16 @@ create_ranking = function(all_exp_data, all_uniq_samples, miRNA = FALSE){
   ########## Create one table with gene scores from all experiments ###########
   #############################################################################
 
-  all_IRsamples = C_for_IR[1, ]
+  all_IRsamples = c()
+
+  for (i in 1:length(C_for_IR)) {
+
+    if(class(all_uniq_samples[[i]]) != 'character'){
+
+      all_IRsamples = c(all_IRsamples, paste(C_for_IR[[i]][1,], all_uniq_samples[[i]]$Experiment[1], sep = " "))
+    }
+  }
+
   Gene_Score = array(NA, dim = c(length(Gene_EntrezId), length(all_IRsamples)))
   rownames(Gene_Score) = Gene_EntrezId
   colnames(Gene_Score) = all_IRsamples
@@ -210,21 +219,23 @@ create_ranking = function(all_exp_data, all_uniq_samples, miRNA = FALSE){
 
     if(class(exp_score[[i]]) == 'matrix'){
 
-      cols = which(colnames(Gene_Score) %in% colnames(exp_score[[i]]))
-      Gene_Score[rownames(exp_score[[i]]), cols] = exp_score[[i]][, colnames(Gene_Score)[cols]]
+      expID = all_uniq_samples[[i]]$Experiment[1]
+      cols = which(colnames(Gene_Score) %in% paste(colnames(exp_score[[i]]), expID, sep=" "))
+      Gene_Score[rownames(exp_score[[i]]), cols] = exp_score[[i]]
 
     }else if(class(exp_score[[i]]) == 'list'){
 
       for (j in 1:length(exp_score[[i]])) {
 
-        cols = which(colnames(Gene_Score) %in% colnames(exp_score[[i]][[j]]))
-        Gene_Score[rownames(exp_score[[i]][[j]]), cols] = exp_score[[i]][[j]][, colnames(Gene_Score)[cols]]
+        expID = all_uniq_samples[[i]]$Experiment[1]
+        cols = which(colnames(Gene_Score) %in% paste(colnames(exp_score[[i]][[j]]), expID, sep=" "))
+        Gene_Score[rownames(exp_score[[i]][[j]]), cols] = exp_score[[i]][[j]]
       }
     }
   }
 
   ### średnia wartość współczynnika dla danego genu, czyli ranking bez wag
-  # Mean_Gene_Score = rowMeans(Gene_Score, na.rm = TRUE)                               # srednioa/mediana
+  # Mean_Gene_Score = rowMeans(Gene_Score, na.rm = TRUE)                               # srednia/mediana
   #
   # Gene_Ranking = data.frame(ID=Gene_EntrezId, symbol=Symbols, score=Mean_Gene_Score)
   # Gene_Ranking = Gene_Ranking[order(Gene_Ranking$score, decreasing = TRUE),]
