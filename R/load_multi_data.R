@@ -106,5 +106,11 @@ load_multi_data = function(dane, ExpInfoTable, sdrfFiles){
 
   }
 
-  return(raw_expression_data = c(raw_exp, raw_exp2))
+  if(exists("raw_exp") & exists("raw_exp2")){
+    return(raw_expression_data = c(raw_exp, raw_exp2))
+  }else if(exists("raw_exp")){
+    return(raw_expression_data = raw_exp)
+  }else if(exists("raw_exp2")){
+    return(raw_expression_data = raw_exp2)
+  }
 }

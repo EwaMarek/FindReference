@@ -42,8 +42,16 @@ downloadAE = function(ExpInfoTable, path){
   ################################################################
 
   ExpIds = unique(ExpInfoTable$Experiment)
-  ExpIds = ExpIds[-grep(".", ExpIds, fixed = TRUE)]
-  ExpIds = ExpIds[-grep("/", ExpIds, fixed = TRUE)]
+
+  if(length(grep(".", ExpIds, fixed = TRUE)) != 0){
+    ExpIds = ExpIds[-grep(".", ExpIds, fixed = TRUE)]
+  }
+
+
+  if(length(grep("/", ExpIds, fixed = TRUE)) != 0){
+    ExpIds = ExpIds[-grep("/", ExpIds, fixed = TRUE)]
+  }
+
 
   ################################################################
   #####  Read in .sdrf file, find platform type and label   ######
@@ -108,7 +116,7 @@ downloadAE = function(ExpInfoTable, path){
       dir.create(paste0(path,"/", ExpIds[i]), showWarnings = TRUE,
                  recursive = FALSE, mode = "0777")
 
-      dane[[i]] = try(getAE(ExpIds[i], path = paste0(path,"/", ExpIds[i]),
+      dane[[i]] = try(httpsAE(ExpIds[i], path = paste0(path,"/", ExpIds[i]),
                             type = 'raw', extract = TRUE))
 
       if(class(dane[[i]]) == 'try-error'){

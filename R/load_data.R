@@ -96,6 +96,9 @@ load_data = function(dane, ExpInfoTable, sdrfFile){
 
     # ktore nazwy nie zawieraja miRNA
     without_micro = grep("miRNA", dane$rawFiles, invert = TRUE)
+    if(length(grep("miRNA", dane$rawFiles, invert = TRUE)) > 0){
+      secondMiRna = TRUE
+    }
     do_wczytania = dane$rawFiles[without_micro]
 
     # ktore nazwy nie zawieraja tif
@@ -132,7 +135,7 @@ load_data = function(dane, ExpInfoTable, sdrfFile){
     }else{
 
       # jedna platforma
-      if(length(array_design)<2){
+      if(length(array_design)<2 || secondMiRna == TRUE){
         raw_exp = read.maimages(do_wczytania, path=dane$path, source="agilent", green.only=TRUE)
 
         # dwie platformy
