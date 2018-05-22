@@ -95,6 +95,7 @@ load_data = function(dane, ExpInfoTable, sdrfFile){
     dyes = levels(sdrfFile[,'Label'])
 
     # ktore nazwy nie zawieraja miRNA
+    secondMiRna = FALSE
     without_micro = grep("miRNA", dane$rawFiles, invert = TRUE)
     if(length(grep("miRNA", dane$rawFiles, invert = TRUE)) > 0){
       secondMiRna = TRUE

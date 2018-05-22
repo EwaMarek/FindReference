@@ -68,8 +68,12 @@ eliminate_rep = function(expMat, eid, ExpInfoTable, sdrfFiles){
 
       ### change the colnames so they will be the same as in ExpInfoTable
       act_sdrf = sdrfFiles[eid]
-      if(!(is.null(unlist(act_sdrf)))){
+      if(!(is.null(unlist(act_sdrf[[1]])))){
         new_cols = act_sdrf[[1]]$Source.Name[match(gsub("./", "", colnames(expMat)), act_sdrf[[1]]$Array.Data.File)]
+        if(sum(is.na(new_cols))>1){
+          new_cols = act_sdrf[[1]]$Source.Name[match(paste0(colnames(expMat), ".txt"), act_sdrf[[1]]$Array.Data.File)]
+        }
+
         colnames(expMat) = new_cols
       }
 
@@ -108,7 +112,7 @@ eliminate_rep = function(expMat, eid, ExpInfoTable, sdrfFiles){
       new_cols1 = vector(mode = 'character', dim(expMat[[1]])[2])
       new_cols2 = vector(mode = 'character', dim(expMat[[1]])[2])
 
-      if(!(is.null(unlist(act_sdrf)))){
+      if(!(is.null(unlist(act_sdrf[[1]])))){
 
         for (z in 1:dim(expMat[[1]])[2]) {
 
@@ -147,8 +151,8 @@ eliminate_rep = function(expMat, eid, ExpInfoTable, sdrfFiles){
          }
 
         # find repetetive sample names
-        cy3dye = which(ExpInfoTable$Experiment == eid & ExpInfoTable$Label == dyes[1])
-        cy5dye = which(ExpInfoTable$Experiment == eid & ExpInfoTable$Label == dyes[2])
+        cy3dye = which(ExpInfoTable$Experiment == eid & ExpInfoTable$Label == unique(dyes)[1])
+        cy5dye = which(ExpInfoTable$Experiment == eid & ExpInfoTable$Label == unique(dyes)[2])
 
         #which(ExpInfoTable$Label[uniIDS] == dyes[1])])
         rep_micro_names_dye1 = colnames(expMat[[1]])[which(colnames(expMat[[1]]) %in% ExpInfoTable$SampleID[intersect(which(uniIDS==TRUE), cy3dye)])]
