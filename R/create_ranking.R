@@ -132,17 +132,30 @@ create_ranking = function(all_exp_data, all_uniq_samples, miRNA = FALSE){
   #############################################################################
   FC_data = rep(list(list()), length(z_scores_data))
   C_for_IR = rep(list(list()), length(z_scores_data)) #FC_data
+  FCnames = vector("character", length(FC_data))
 
   for (i in 1:length(z_scores_data)) {
     if(class(all_uniq_samples[[i]]) != "character"){
       FC_dataset = log_fold_change(z_scores_data[[i]], all_uniq_samples[[i]], TRUE)
       FC_data[[i]] = FC_dataset[[1]]
       C_for_IR[[i]] = FC_dataset[[2]]
+
+      if(class(all_uniq_samples[[i]]) == "data.frame"){
+        FCnames[i] = as.character(all_uniq_samples[[i]]$Experiment[1])
+      }else{
+        FCnames[i] = as.character(all_uniq_samples[[i]][[1]]$Experiment[1])
+      }
+
+
     }else{
       FC_data[[i]] = "No data"
       C_for_IR[[i]] = "No data"
+      FCnames[i] = "NA"
     }
   }
+
+
+  names(FC_data) = FCnames
 
   #############################################################################
   ######################### Take controls expression ##########################
@@ -189,7 +202,7 @@ create_ranking = function(all_exp_data, all_uniq_samples, miRNA = FALSE){
 
   if(miRNA == FALSE){
 
-    EG2SYM = as.list(org.Hs.egSYMBOL)
+    EG2SYM = AnnotationDbi::as.list(org.Hs.egSYMBOL)
     Symbols = unlist(EG2SYM[Gene_EntrezId])
     Symbols = Symbols[Gene_EntrezId] # 19 genów nie ma symbolu
 

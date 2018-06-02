@@ -93,7 +93,7 @@
 #' @export
 
 
-lFC_in_time = function(genes_to_valid, dane_ranking_z_scores, scale = 'linear', miRNA=FALSE){
+lFC_in_time = function(genes_to_valid, dane_ranking_z_scores, scale = 'linear', all_uniq_samples, miRNA=FALSE){
 
 
   #############################################################################
@@ -123,14 +123,20 @@ lFC_in_time = function(genes_to_valid, dane_ranking_z_scores, scale = 'linear', 
   for (i in 1:length(FC_data)) {
 
     if(class(FC_data[[i]]) == 'matrix'){
-      cols = which(colnames(lFC_matrix) %in% colnames(FC_data[[i]]))
-      lFC_matrix[rownames(FC_data[[i]]), cols] = FC_data[[i]][, colnames(lFC_matrix)[cols]]
+
+      #CN = strsplit(colnames(lFC_matrix), " ")
+      cols = which(colnames(lFC_matrix) %in% paste(colnames(FC_data[[i]]), names(FC_data[i]), sep = " "))
+      lFC_matrix[rownames(FC_data[[i]]), cols] = FC_data[[i]][, unlist(lapply(strsplit(colnames(lFC_matrix)[cols], " "), "[[", 1))]
 
     }else if(class(FC_data[[i]]) == 'list'){
 
       for (j in 1:length(FC_data[[i]])) {
-        cols = which(colnames(lFC_matrix) %in% colnames(FC_data[[i]][[j]]))
-        lFC_matrix[rownames(FC_data[[i]][[j]]), cols] = FC_data[[i]][[j]][, colnames(lFC_matrix)[cols]]
+
+        #CN = unlist(strsplit(colnames(lFC_matrix), " "))
+        cols = which(colnames(lFC_matrix) %in% paste(colnames(FC_data[[i]][[j]]), names(FC_data[i]), sep = " "))
+        #cols = which(colnames(lFC_matrix) %in% colnames(FC_data[[i]][[j]]))
+        lFC_matrix[rownames(FC_data[[i]][[j]]), cols] = FC_data[[i]][[j]][, unlist(lapply(strsplit(colnames(lFC_matrix)[cols], " "), "[[", 1))]
+        #lFC_matrix[rownames(FC_data[[i]][[j]]), cols] = FC_data[[i]][[j]][, colnames(lFC_matrix)[cols]]
       }
     }
   }
@@ -141,7 +147,7 @@ lFC_in_time = function(genes_to_valid, dane_ranking_z_scores, scale = 'linear', 
   #############################################################################
 
   if(miRNA==FALSE){
-    EG2SYM = as.list(org.Hs.egSYMBOL)
+    EG2SYM = AnnotationDbi::as.list(org.Hs.egSYMBOL)
     Symbols = unlist(EG2SYM[Gene_EntrezId])
     Symbols = Symbols[Gene_EntrezId]
     rownames(lFC_matrix) = Symbols
@@ -152,16 +158,74 @@ lFC_in_time = function(genes_to_valid, dane_ranking_z_scores, scale = 'linear', 
   ######## Extract rows chosen by user and add info about experiment ##########
   #############################################################################
 
+  ### change all unique samples structure - add elements names
+  tablesNames = vector(mode = "character", length(all_uniq_samples))
+
+  for(i in 1:length(all_uniq_samples)){
+
+    if(class(all_uniq_samples[[i]]) == 'data.frame'){
+
+      tablesNames[i] = as.character(all_uniq_samples[[i]]$Experiment[1])
+
+    }else if(class(all_uniq_samples[[i]]) == 'list'){
+
+      tablesNames[i] = as.character(all_uniq_samples[[i]][[1]]$Experiment[1])
+
+    }else{
+
+      tablesNames[i] = "NA"
+
+    }
+  }
+
+  names(all_uniq_samples) = tablesNames
+
+  ### extract information
   lFC_vs_time = melt(lFC_matrix[as.character(genes_to_valid), ])
+  cells = vector(mode="character", length = dim(lFC_vs_time)[1])
+  dose = vector(mode="character", length = dim(lFC_vs_time)[1])
+  Time = vector(mode="character", length = dim(lFC_vs_time)[1])
+  Exp = vector(mode="character", length = dim(lFC_vs_time)[1])
 
-  # bledogenne - co jesli ktos da opisy tabelki w innej kolejnosci, albo jakiejs nie bedzie, zle, bardzo niedobrze
-  # poki co uzytkownik musi zapewnic tabele jak w przykladzie - > dodac dokladne sprawdzenie tego, tam gdzie juz sprawdza mniej restrykcyjnie
+  for(i in 1:dim(lFC_vs_time)[1]){
 
-  # druga kolumna to zawsze nazwy kolumn
-  lFC_vs_time$cells = unlist(lapply(strsplit(as.character(lFC_vs_time[, 2]), ' '), function(x) x[2]))
-  lFC_vs_time$dose = unlist(lapply(strsplit(as.character(lFC_vs_time[, 2]), ' '), function(x) x[length(x)]))
-  lFC_vs_time$Time = strtoi(unlist(lapply(strsplit(as.character(lFC_vs_time[, 2]), ' '), function(x) x[4])))
-  lFC_vs_time$exp = unlist(lapply(strsplit(as.character(lFC_vs_time[, 2]), ' '), function(x) x[1]))
+    samp = as.character(lFC_vs_time[i,2])
+    uniTab = all_uniq_samples[[strsplit(samp, " ")[[1]][2]]]
+
+    if(class(uniTab) == 'data.frame'){
+
+      currRow = uniTab[which(uniTab$internalId == strsplit(samp, " ")[[1]][1]),]
+      cells[i] = as.character(currRow$CellLine)
+      dose[i] = as.character(currRow$Dose)
+      Time[i] = as.character(currRow$Time)
+      Exp[i] = as.character(currRow$Experiment)
+
+    }else if(class(uniTab) == 'list'){
+
+      if(grepl("A", strsplit(samp, " ")[[1]][1])){
+
+        currRow = uniTab[[1]][which(uniTab[[1]]$internalId == strsplit(samp, " ")[[1]][1]),]
+
+      }else{
+
+        currRow = uniTab[[2]][which(uniTab[[2]]$internalId == strsplit(samp, " ")[[1]][1]),]
+
+      }
+
+      cells[i] = as.character(currRow$CellLine)
+      dose[i] = as.character(currRow$Dose)
+      Time[i] = as.character(currRow$Time)
+      Exp[i] = as.character(currRow$Experiment)
+
+    }
+
+  }
+
+  # add info to main table
+  lFC_vs_time$cells = cells
+  lFC_vs_time$dose = dose
+  lFC_vs_time$Time = Time
+  lFC_vs_time$exp = Exp
 
 
 
@@ -219,7 +283,7 @@ lFC_in_time = function(genes_to_valid, dane_ranking_z_scores, scale = 'linear', 
 
     lFC_vs_time = lFC_vs_time[which(is.na(lFC_vs_time$linear) == FALSE),]
 
-    wykres = ggplot(lFC_vs_time, aes(x=Time, y=linear))+
+    wykres = ggplot(lFC_vs_time, aes(x=Time, y=linear, group = 1))+
       stat_summary(geom = 'ribbon', fun.ymin = median.quartile1, fun.ymax = 'median', colour = 'blue', alpha=0.5)+
       stat_summary(geom = 'ribbon', fun.ymin = 'median', fun.ymax = median.quartile3, colour = 'blue', alpha=0.5)+
       stat_summary(fun.y = "median", colour = "red", size = 0.5, geom = "line")+
@@ -233,7 +297,7 @@ lFC_in_time = function(genes_to_valid, dane_ranking_z_scores, scale = 'linear', 
 
     lFC_vs_time = lFC_vs_time[which(is.na(lFC_vs_time$value) == FALSE),]
 
-    wykres = ggplot(lFC_vs_time, aes(x=Time, y=value))+
+    wykres = ggplot(lFC_vs_time, aes(x=Time, y=value, group = 1))+
       stat_summary(geom = 'ribbon', fun.ymin = median.quartile1, fun.ymax = 'median', colour = 'blue', alpha=0.5)+
       stat_summary(geom = 'ribbon', fun.ymin = 'median', fun.ymax = median.quartile3, colour = 'blue', alpha=0.5)+
       stat_summary(fun.y = "median", colour = "red", size = 0.5, geom = "line")+
