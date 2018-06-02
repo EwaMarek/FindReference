@@ -72,7 +72,7 @@ downloadAE = function(ExpInfoTable, path){
   for (i in 1:dim(ExpInfoTable)[1]) {
     if(ExpInfoTable$Experiment[i] %in% ExpIds){
       sdrf = sdrfFiles[[as.character(ExpInfoTable$Experiment[i])]]
-      ExpInfoTable$Platform[i] =  platformDetails[match(unique(sdrf$Array.Design.REF), platformDetails$ID), 'Desc']
+      ExpInfoTable$Platform[i] = platformDetails[match(sdrf$Array.Design.REF[which(as.character(sdrf$Source.Name) == ExpInfoTable$SampleID[i])], platformDetails$ID), 'Desc']
       lab = as.character(sdrf[which(as.character(sdrf$Source.Name) == as.character(ExpInfoTable$SampleID[i])), 'Label'])
 
       # the if statement below needed in case that there are the same experimental conditions (on the same microarray)

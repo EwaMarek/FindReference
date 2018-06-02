@@ -130,7 +130,6 @@ create_ranking = function(all_exp_data, all_uniq_samples, miRNA = FALSE){
   #############################################################################
   ### Calculate fold change and find control sample for each treated sample ###
   #############################################################################
-
   FC_data = rep(list(list()), length(z_scores_data))
   C_for_IR = rep(list(list()), length(z_scores_data)) #FC_data
 
@@ -206,7 +205,13 @@ create_ranking = function(all_exp_data, all_uniq_samples, miRNA = FALSE){
 
     if(class(all_uniq_samples[[i]]) != 'character'){
 
-      all_IRsamples = c(all_IRsamples, paste(C_for_IR[[i]][1,], all_uniq_samples[[i]]$Experiment[1], sep = " "))
+      if(class(C_for_IR[[i]]) != 'list'){
+        all_IRsamples = c(all_IRsamples, paste(C_for_IR[[i]][1,], all_uniq_samples[[i]]$Experiment[1], sep = " "))
+      }else{
+        for (z in 1:length(C_for_IR[[i]])) {
+          all_IRsamples = c(all_IRsamples, paste(C_for_IR[[i]][[z]][1,], all_uniq_samples[[i]][[z]]$Experiment[1], sep = " "))
+        }
+      }
     }
   }
 
@@ -227,7 +232,7 @@ create_ranking = function(all_exp_data, all_uniq_samples, miRNA = FALSE){
 
       for (j in 1:length(exp_score[[i]])) {
 
-        expID = all_uniq_samples[[i]]$Experiment[1]
+        expID = all_uniq_samples[[i]][[j]]$Experiment[1]
         cols = which(colnames(Gene_Score) %in% paste(colnames(exp_score[[i]][[j]]), expID, sep=" "))
         Gene_Score[rownames(exp_score[[i]][[j]]), cols] = exp_score[[i]][[j]]
       }

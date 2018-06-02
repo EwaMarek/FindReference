@@ -73,9 +73,9 @@ load_data = function(dane, ExpInfoTable, sdrfFile){
   if(is.na(full_platform_name)==TRUE || length(full_platform_name) == 0){
     platforma = "NA"
     raw_exp = "Could not be loaded with load_data function. Only Agilent and Affymetrix platforms are supported."
-  }else if(grepl('Affymetrix', full_platform_name)){
+  }else if(TRUE %in% grepl('Affymetrix', full_platform_name)){
     platforma = "Affymetrix"
-  }else if(grepl('Agilent', full_platform_name)){
+  }else if(TRUE %in% grepl('Agilent', full_platform_name)){
     platforma = "Agilent"
   }else{
     platforma = full_platform_name
@@ -92,12 +92,11 @@ load_data = function(dane, ExpInfoTable, sdrfFile){
 
   if(platforma == "Agilent"){
 
-    dyes = levels(sdrfFile[,'Label'])
 
     # ktore nazwy nie zawieraja miRNA
     secondMiRna = FALSE
     without_micro = grep("miRNA", dane$rawFiles, invert = TRUE)
-    if(length(grep("miRNA", dane$rawFiles, invert = TRUE)) > 0){
+    if(length(grep("miRNA", dane$rawFiles)) > 0){
       secondMiRna = TRUE
     }
     do_wczytania = dane$rawFiles[without_micro]
@@ -108,6 +107,9 @@ load_data = function(dane, ExpInfoTable, sdrfFile){
 
     # czy sa dwie platformy
     array_design =  unique(sdrfFile[, "Array.Design.REF"])
+
+    # how many labels
+    dyes = levels(sdrfFile[,'Label'])
 
     ## ekperyment dwukolorowy
     if(length(dyes) == 2 && dyes[1] %in% c("Cy3", "Cy5") && dyes[2] %in% c("Cy3", "Cy5")){
@@ -158,7 +160,12 @@ load_data = function(dane, ExpInfoTable, sdrfFile){
   if(platforma == "Affymetrix"){
 
     # ktore nazwy nie zawieraja miRNA
+    # ktore nazwy nie zawieraja miRNA
+    secondMiRna = FALSE
     without_micro = grep("miRNA", dane$rawFiles, invert = TRUE)
+    if(length(grep("miRNA", dane$rawFiles)) > 0){
+      secondMiRna = TRUE
+    }
     do_wczytania = dane$rawFiles[without_micro]
 
     # ktore nazwy nie zawieraja txt

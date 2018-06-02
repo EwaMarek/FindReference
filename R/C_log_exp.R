@@ -14,8 +14,8 @@ C_log_exp = function(data_z, C_for_IR){
     
     for (j in 1:length(data_z)) {
       
-      wh_samples = which(C_for_IR[1,] %in% colnames(data_z[[j]]))
-      C_exp[[j]] = data_z[[j]][, C_for_IR[2, wh_samples]]
+      wh_samples = which(C_for_IR[[j]][1,] %in% colnames(data_z[[j]]))
+      C_exp[[j]] = data_z[[j]][, C_for_IR[[j]][2, wh_samples]]
     }
   }
   
